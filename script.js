@@ -1,42 +1,69 @@
- function compare(a, b) {
-  if (a < b) {
-      return -1;
-  } else if (a > b) {
-      return 1;
-  } else {
-      return 0;
+ function calculateMinCost(){
+  const inputRopes = document.getElementById("inputRopes").value;
+  const ropeLengths = inputRopes.split(",").map(Number);
+
+  function MinHeap() {
+    this.heap = [];
+
+    this.insert = function (value) {
+      this.heap.push(value);
+      this.bubbleUp(this.heap.length - 1);
+    };
+
+    this.extractMin = function () {
+      if (this.heap.length === 0) {
+        return null;
+      }
+
+      if (this.heap.length === 1) {
+        return this.heap.pop();
+      }
+
+      const minValue = this.heap[0];
+      this.heap[0] = this.heap.pop();
+      this.bubbleDown(0);
+
+      return minValue;
+    };
+
+    this.bubbleUp = function (index) {
+      const parentIndex = Math.floor((index - 1) / 2);
+      if (parentIndex >= 0 && this.heap[index] < this.heap[parentIndex]) {
+        [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
+        this.bubbleUp(parentIndex);
+      }
+    };
+
+    this.bubbleDown = function (index) {
+      const leftChildIndex = 2 * index + 1;
+      const rightChildIndex = 2 * index + 2;
+      let smallestIndex = index;
+
+      if (leftChildIndex < this.heap.length && this.heap[leftChildIndex] < this.heap[smallestIndex]) {
+        smallestIndex = leftChildIndex;
+      }
+
+      if (rightChildIndex < this.heap.length && this.heap[rightChildIndex] < this.heap[smallestIndex]) {
+        smallestIndex = rightChildIndex;
+      }
+
+      if (smallestIndex !== index) {
+        [this.heap[index], this.heap[smallestIndex]] = [this.heap[smallestIndex], this.heap[index]];
+        this.bubbleDown(smallestIndex);
+      }
+    };
   }
-}
- 
- 
- 
-function calculateMinCost() {
-  //your code here
-  let str=document.getElementById('rope-lengths').value.split(",");
-  let arr=str.map((str)=>parseInt(str));
-  // console.log(arr);
-  
-let total=0;
-arr=arr.sort(compare);
-// console.log("arr ",arr);
-while(arr.length>=2){
-  let sum=arr[0]+arr[1];
-  // console.log(sum);
-  let rem=[];
-  rem.push(sum);
-  for(let k=2;k<arr.length;k++){
-    rem.push(arr[k]);
+
+  const minHeap = new MinHeap();
+  ropeLengths.forEach(length => minHeap.insert(length));
+
+  let totalCost = 0;
+  while (minHeap.heap.length > 1) {
+    const combinedLength = minHeap.extractMin() + minHeap.extractMin();
+    totalCost += combinedLength;
+    minHeap.insert(combinedLength);
   }
-  rem=rem.sort(compare);
-  // console.log("rem ",rem);
-  arr=[...rem];
-  // console.log("arr ",arr);
-  total=total+sum;
-  // console.log("total "+total+"----------------------");
+
+  const resultDiv = document.getElementById("result");
+  resultDiv.textContent = `Minimum cost: ${totalCost}`;
 }
-console.log(total);
- 
- 
-let result=document.getElementById('result');
-result.innerHTML=total;
-}  
